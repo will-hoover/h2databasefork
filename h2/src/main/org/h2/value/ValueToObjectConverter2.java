@@ -222,6 +222,11 @@ public final class ValueToObjectConverter2 extends TraceObject {
             v = rs.wasNull() ? ValueNull.INSTANCE : ValueInteger.get(value);
             break;
         }
+        case Value.UNSIGNED_INT: {
+            int value = rs.getInt(columnIndex);
+            v = rs.wasNull() ? ValueNull.INSTANCE : ValueUnsignedInt.get(value);
+            break;
+        }
         case Value.BIGINT: {
             long value = rs.getLong(columnIndex);
             v = rs.wasNull() ? ValueNull.INSTANCE : ValueBigint.get(value);

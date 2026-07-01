@@ -79,6 +79,8 @@ public final class H2Type implements SQLType {
      */
     public static final H2Type INTEGER = new H2Type(TypeInfo.TYPE_INTEGER, "INTEGER");
 
+    public static final H2Type UNSIGNED_INT = new H2Type(TypeInfo.TYPE_UNSIGNED_INT, "UNSIGNED INT");
+
     /**
      * The BIGINT data type.
      */

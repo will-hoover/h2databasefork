@@ -86,9 +86,10 @@ public final class Transfer {
     // 2.0.202
     private static final int BINARY = 30;
     private static final int DECFLOAT = 31;
+    private static final int UNSIGNED_INT = 44;
 
     private static final int[] VALUE_TO_TI = new int[Value.TYPE_COUNT + 1];
-    private static final int[] TI_TO_VALUE = new int[45];
+    private static final int[] TI_TO_VALUE = new int[46];
 
     static {
         addType(-1, Value.UNKNOWN);
@@ -97,6 +98,7 @@ public final class Transfer {
         addType(TINYINT, Value.TINYINT);
         addType(SMALLINT, Value.SMALLINT);
         addType(INTEGER, Value.INTEGER);
+        addType(UNSIGNED_INT, Value.UNSIGNED_INT);
         addType(BIGINT, Value.BIGINT);
         addType(NUMERIC, Value.NUMERIC);
         addType(DOUBLE, Value.DOUBLE);
@@ -514,6 +516,7 @@ public final class Transfer {
         case Value.TINYINT:
         case Value.SMALLINT:
         case Value.INTEGER:
+        case Value.UNSIGNED_INT:
         case Value.BIGINT:
         case Value.DATE:
         case Value.UUID:
@@ -676,6 +679,7 @@ public final class Transfer {
         case Value.TINYINT:
         case Value.SMALLINT:
         case Value.INTEGER:
+        case Value.UNSIGNED_INT:
         case Value.BIGINT:
         case Value.DATE:
         case Value.UUID:
@@ -909,6 +913,10 @@ public final class Transfer {
             writeInt(INTEGER);
             writeInt(v.getInt());
             break;
+        case Value.UNSIGNED_INT:
+            writeInt(UNSIGNED_INT);
+            writeInt(v.getInt());
+            break;
         case Value.BIGINT:
             writeInt(BIGINT);
             writeLong(v.getLong());
@@ -1126,6 +1134,8 @@ public final class Transfer {
         }
         case INTEGER:
             return ValueInteger.get(readInt());
+        case UNSIGNED_INT:
+            return ValueUnsignedInt.get(readInt());
         case BIGINT:
             return ValueBigint.get(readLong());
         case SMALLINT:

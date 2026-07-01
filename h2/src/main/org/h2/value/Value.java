@@ -268,9 +268,14 @@ public abstract class Value extends VersionedValue<Value> implements HasSQL, Typ
     public static final int ROW = ARRAY + 1;
 
     /**
+     * The value type for UNSIGNED INT values.
+     */
+    public static final int UNSIGNED_INT = ROW + 1;
+
+    /**
      * The number of value types.
      */
-    public static final int TYPE_COUNT = ROW + 1;
+    public static final int TYPE_COUNT = UNSIGNED_INT + 1;
 
     /**
      * Group for untyped NULL data type.
@@ -351,7 +356,8 @@ public abstract class Value extends VersionedValue<Value> implements HasSQL, Typ
             GROUP_OTHER, GROUP_OTHER, GROUP_OTHER, GROUP_OTHER, GROUP_OTHER,
             // ARRAY, ROW
             GROUP_COLLECTION, GROUP_COLLECTION,
-            //
+            // UNSIGNED INT
+            GROUP_NUMERIC,
     };
 
     private static final String NAMES[] = {
@@ -369,7 +375,7 @@ public abstract class Value extends VersionedValue<Value> implements HasSQL, Typ
             "INTERVAL DAY TO HOUR", "INTERVAL DAY TO MINUTE", "INTERVAL DAY TO SECOND", //
             "INTERVAL HOUR TO MINUTE", "INTERVAL HOUR TO SECOND", "INTERVAL MINUTE TO SECOND", //
             "JAVA_OBJECT", "ENUM", "GEOMETRY", "JSON", "UUID", //
-            "ARRAY", "ROW", //
+            "ARRAY", "ROW", "UNSIGNED INT"//
     };
 
     /**
@@ -1166,6 +1172,8 @@ public abstract class Value extends VersionedValue<Value> implements HasSQL, Typ
             return convertToInt(column);
         case BIGINT:
             return convertToBigint(column);
+        case UNSIGNED_INT:
+            return convertToUnsignedInt(column);
         case NUMERIC:
             return convertToNumeric(targetType, provider, conversionMode, column);
         case REAL:
@@ -1637,6 +1645,45 @@ public abstract class Value extends VersionedValue<Value> implements HasSQL, Typ
             throw getDataConversionError(INTEGER);
         case NULL:
             throw DbException.getInternalError();
+        }
+    }
+
+    public final ValueUnsignedInt convertToUnsignedInt(Object column) {
+        switch (getValueType()) {
+        case UNSIGNED_INT:
+            return (ValueUnsignedInt) this;
+        case INTEGER:
+        case CHAR:
+        case VARCHAR:
+        case VARCHAR_IGNORECASE:
+        case BOOLEAN:
+        case TINYINT:
+        case ENUM:
+        case SMALLINT:
+            return ValueUnsignedInt.get(convertToUnsignedInt(getLong(), column));
+        case BIGINT:
+        case INTERVAL_YEAR:
+        case INTERVAL_MONTH:
+        case INTERVAL_DAY:
+        case INTERVAL_HOUR:
+        case INTERVAL_MINUTE:
+        case INTERVAL_SECOND:
+        case INTERVAL_YEAR_TO_MONTH:
+        case INTERVAL_DAY_TO_HOUR:
+        case INTERVAL_DAY_TO_MINUTE:
+        case INTERVAL_DAY_TO_SECOND:
+        case INTERVAL_HOUR_TO_MINUTE:
+        case INTERVAL_HOUR_TO_SECOND:
+        case INTERVAL_MINUTE_TO_SECOND:
+            return ValueUnsignedInt.get(convertToUnsignedInt(getLong(), column));
+        case NUMERIC:
+        case DECFLOAT:
+            return ValueUnsignedInt.get(convertToUnsignedInt(convertToLong(getBigDecimal(), column), column));
+        case REAL:
+        case DOUBLE:
+            return ValueUnsignedInt.get(convertToUnsignedInt(convertToLong(getDouble(), column), column));
+        default:
+            throw getDataConversionError(UNSIGNED_INT);
         }
     }
 
@@ -2773,6 +2820,15 @@ public abstract class Value extends VersionedValue<Value> implements HasSQL, Typ
     public static int convertToInt(long x, Object column) {
         if (x > Integer.MAX_VALUE || x < Integer.MIN_VALUE) {
             throw getOutOfRangeException(Long.toString(x), column);
+        }
+        return (int) x;
+    }
+
+    public static int convertToUnsignedInt(long x, Object column) {
+        if (x > ((long) Integer.MAX_VALUE * 2L + 1L) || x < 0) {
+            throw getOutOfRangeException(Long.toString(x), column);
+        } else if (x > Integer.MAX_VALUE) {
+            return (int) (Integer.MAX_VALUE - x);
         }
         return (int) x;
     }

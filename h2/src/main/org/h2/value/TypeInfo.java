@@ -88,6 +88,11 @@ public class TypeInfo extends ExtTypeInfo implements Typed {
     public static final TypeInfo TYPE_INTEGER;
 
     /**
+     * UNSIGNED INT type with parameters.
+     */
+    public static final TypeInfo TYPE_UNSIGNED_INT;
+
+    /**
      * BIGINT type with parameters.
      */
     public static final TypeInfo TYPE_BIGINT;
@@ -237,6 +242,7 @@ public class TypeInfo extends ExtTypeInfo implements Typed {
         infos[Value.TINYINT] = TYPE_TINYINT = new TypeInfo(Value.TINYINT);
         infos[Value.SMALLINT] = TYPE_SMALLINT = new TypeInfo(Value.SMALLINT);
         infos[Value.INTEGER] = TYPE_INTEGER = new TypeInfo(Value.INTEGER);
+        infos[Value.UNSIGNED_INT] = TYPE_UNSIGNED_INT = new TypeInfo(Value.UNSIGNED_INT);
         infos[Value.BIGINT] = TYPE_BIGINT = new TypeInfo(Value.BIGINT);
         TYPE_NUMERIC_SCALE_0 = new TypeInfo(Value.NUMERIC, Constants.MAX_NUMERIC_PRECISION, 0, null);
         TYPE_NUMERIC_BIGINT = new TypeInfo(Value.NUMERIC, ValueBigint.DECIMAL_PRECISION, 0, null);
@@ -317,6 +323,7 @@ public class TypeInfo extends ExtTypeInfo implements Typed {
         case Value.TINYINT:
         case Value.SMALLINT:
         case Value.INTEGER:
+        case Value.UNSIGNED_INT:
         case Value.BIGINT:
         case Value.DATE:
         case Value.UUID:
@@ -1032,6 +1039,8 @@ public class TypeInfo extends ExtTypeInfo implements Typed {
             return ValueSmallint.PRECISION;
         case Value.INTEGER:
             return ValueInteger.PRECISION;
+        case Value.UNSIGNED_INT:
+            return ValueUnsignedInt.PRECISION;
         case Value.BIGINT:
             return ValueBigint.PRECISION;
         case Value.NUMERIC:
@@ -1117,6 +1126,7 @@ public class TypeInfo extends ExtTypeInfo implements Typed {
         case Value.TINYINT:
         case Value.SMALLINT:
         case Value.INTEGER:
+        case Value.UNSIGNED_INT:
         case Value.BIGINT:
         case Value.REAL:
         case Value.DOUBLE:
@@ -1202,6 +1212,8 @@ public class TypeInfo extends ExtTypeInfo implements Typed {
             return ValueSmallint.DISPLAY_SIZE;
         case Value.INTEGER:
             return ValueInteger.DISPLAY_SIZE;
+        case Value.UNSIGNED_INT:
+            return ValueUnsignedInt.DISPLAY_SIZE;
         case Value.BIGINT:
             return ValueBigint.DISPLAY_SIZE;
         case Value.NUMERIC:

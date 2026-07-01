@@ -142,6 +142,8 @@ public class DataType {
         );
         add(Value.BIGINT, Types.BIGINT, createNumeric(ValueBigint.PRECISION, 0),
                 "BIGINT", "INT8", "LONG");
+        add(Value.UNSIGNED_INT, Types.INTEGER, createNumeric(ValueUnsignedInt.PRECISION, 0),
+                "UNSIGNED INT", "UINT", "INT UNSIGNED");
         dataType = new DataType();
         dataType.minPrecision = 1;
         dataType.defaultPrecision = dataType.maxPrecision = Constants.MAX_NUMERIC_PRECISION;

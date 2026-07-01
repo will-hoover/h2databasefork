@@ -430,6 +430,7 @@ public final class ValueToObjectConverter extends TraceObject {
             }
             return Short.class;
         case Value.INTEGER:
+        case Value.UNSIGNED_INT:
             return Integer.class;
         case Value.BIGINT:
             return Long.class;

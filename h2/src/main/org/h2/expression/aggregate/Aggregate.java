@@ -1069,6 +1069,7 @@ public class Aggregate extends AbstractAggregate implements ExpressionWithFlags 
             case Value.TINYINT:
             case Value.SMALLINT:
             case Value.INTEGER:
+            case Value.UNSIGNED_INT:
             case Value.BIGINT:
             case Value.NUMERIC:
             case Value.REAL:

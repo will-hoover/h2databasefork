@@ -492,6 +492,9 @@ public class JdbcUtils {
         case Value.SMALLINT:
             prep.setShort(parameterIndex, value.getShort());
             break;
+        case Value.UNSIGNED_INT:
+            prep.setLong(parameterIndex, value.getLong());
+            break;
         case Value.INTEGER:
             prep.setInt(parameterIndex, value.getInt());
             break;

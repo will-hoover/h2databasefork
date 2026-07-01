@@ -35,6 +35,7 @@ import org.h2.value.ValueNumeric;
 import org.h2.value.ValueReal;
 import org.h2.value.ValueSmallint;
 import org.h2.value.ValueTinyint;
+import org.h2.value.ValueUnsignedInt;
 
 /**
  * A column reference expression that represents a column of a table or view.
@@ -460,6 +461,9 @@ public final class ExpressionColumn extends Expression {
             break;
         case Value.INTEGER:
             v = ValueInteger.get(0);
+            break;
+        case Value.UNSIGNED_INT:
+            v = ValueUnsignedInt.get(0);
             break;
         case Value.BIGINT:
             v = ValueBigint.get(0L);

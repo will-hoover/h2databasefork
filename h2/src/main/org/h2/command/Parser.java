@@ -5881,6 +5881,11 @@ public final class Parser extends ParserBase {
             return parseTimeType();
         case "TIMESTAMP":
             return parseTimestampType();
+        case "UNSIGNED":
+            if (readIf("INT")) {
+                original = "UNSIGNED INT";
+            }
+            break;
         }
         Mode mode = database.getMode();
         if (mode.datetimeAndYearType) {
