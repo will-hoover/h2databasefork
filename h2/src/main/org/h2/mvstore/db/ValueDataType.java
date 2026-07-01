@@ -71,6 +71,7 @@ import org.h2.value.ValueVarcharIgnoreCase;
 import org.h2.value.lob.LobData;
 import org.h2.value.lob.LobDataDatabase;
 import org.h2.value.lob.LobDataInMemory;
+import org.h2.value.ValueUnsignedInt;
 
 /**
  * A row type.
@@ -122,6 +123,7 @@ public final class ValueDataType extends BasicDataType<Value> implements Statefu
     private static final int TIME_TZ = 136;
     private static final int BINARY = 137;
     private static final int DECFLOAT = 138;
+    private static final int UNSIGNED_INT = 139;
 
     final DataHandler handler;
     final CastDataProvider provider;
@@ -299,6 +301,9 @@ public final class ValueDataType extends BasicDataType<Value> implements Statefu
             }
             break;
         }
+        case Value.UNSIGNED_INT:
+            buff.put((byte) UNSIGNED_INT).putVarLong(v.getLong());
+            break;
         case Value.BIGINT:
             writeLong(buff, v.getLong());
             break;
@@ -605,6 +610,8 @@ public final class ValueDataType extends BasicDataType<Value> implements Statefu
             return ValueInteger.get(-readVarInt(buff));
         case INTEGER:
             return ValueInteger.get(readVarInt(buff));
+        case UNSIGNED_INT:
+            return ValueUnsignedInt.get((int) readVarLong(buff));
         case BIGINT_NEG:
             return ValueBigint.get(-readVarLong(buff));
         case BIGINT:

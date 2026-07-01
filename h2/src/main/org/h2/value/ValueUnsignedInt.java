@@ -58,22 +58,17 @@ public final class ValueUnsignedInt extends Value {
 
     @Override
     public Value add(Value v) {
-        long result = unsignedLong(value) + ((ValueBigint) v).getLong();
+        long result = unsignedLong(value) + v.getLong();
         return checkRange(result);
     }
 
     private static long unsignedLong(int x) {
-        if (x < 0) {
-            return (long) Integer.MAX_VALUE - (long) x;
-        }
-        return (long) x;
+        return Integer.toUnsignedLong(x);
     }
 
     private static ValueUnsignedInt checkRange(long x) {
-        if (x > Integer.MAX_VALUE * 2L + 1L) {
+        if (x < 0 || x > Integer.MAX_VALUE * 2L + 1L) {
             throw DbException.get(ErrorCode.NUMERIC_VALUE_OUT_OF_RANGE_1, Long.toString(x));
-        } else if (x > Integer.MAX_VALUE) {
-            return ValueUnsignedInt.get((int) ((long) Integer.MAX_VALUE - x));
         }
         return ValueUnsignedInt.get((int) x);
     }
@@ -93,17 +88,17 @@ public final class ValueUnsignedInt extends Value {
 
     @Override
     public Value subtract(Value v) {
-        return checkRange((unsignedLong(value) - ((ValueBigint) v).getLong()));
+        return checkRange((unsignedLong(value) - v.getLong()));
     }
 
     @Override
     public Value multiply(Value v) {
-        return checkRange(unsignedLong(value) * ((ValueBigint) v).getLong());
+        return checkRange(unsignedLong(value) * v.getLong());
     }
 
     @Override
     public Value divide(Value v, TypeInfo quotientType) {
-        long y = ((ValueBigint) v).getLong();
+        long y = v.getLong();
         if (y == 0) {
             throw DbException.get(ErrorCode.DIVISION_BY_ZERO_1, getTraceSQL());
         }
@@ -112,7 +107,7 @@ public final class ValueUnsignedInt extends Value {
 
     @Override
     public Value modulus(Value v) {
-        long val = ((ValueBigint) v).getLong();
+        long val = v.getLong();
         if (val == 0) {
             throw DbException.get(ErrorCode.DIVISION_BY_ZERO_1, getTraceSQL());
         }

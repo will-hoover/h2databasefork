@@ -2825,10 +2825,8 @@ public abstract class Value extends VersionedValue<Value> implements HasSQL, Typ
     }
 
     public static int convertToUnsignedInt(long x, Object column) {
-        if (x > ((long) Integer.MAX_VALUE * 2L + 1L) || x < 0) {
+        if (x < 0 || x > ((long) Integer.MAX_VALUE * 2L + 1L)) {
             throw getOutOfRangeException(Long.toString(x), column);
-        } else if (x > Integer.MAX_VALUE) {
-            return (int) (Integer.MAX_VALUE - x);
         }
         return (int) x;
     }
