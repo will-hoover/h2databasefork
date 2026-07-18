@@ -36,6 +36,11 @@ public enum AggregateType {
     MAX,
 
     /**
+     * The aggregate type for RANGE(expression).
+     */
+    RANGE,
+
+    /**
      * The aggregate type for AVG(expression).
      */
     AVG,

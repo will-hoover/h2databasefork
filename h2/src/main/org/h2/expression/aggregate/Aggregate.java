@@ -117,6 +117,7 @@ public class Aggregate extends AbstractAggregate implements ExpressionWithFlags 
         addAggregate("SUM", AggregateType.SUM);
         addAggregate("MIN", AggregateType.MIN);
         addAggregate("MAX", AggregateType.MAX);
+        addAggregate("RANGE", AggregateType.RANGE);
         addAggregate("AVG", AggregateType.AVG);
         addAggregate("LISTAGG", AggregateType.LISTAGG);
         // MySQL compatibility: group_concat(expression, delimiter)
@@ -436,6 +437,8 @@ public class Aggregate extends AbstractAggregate implements ExpressionWithFlags 
         case PERCENTILE_DISC:
         case MEDIAN:
             break;
+        case RANGE:
+            return new AggregateDataRange();
         case SUM:
         case BIT_XOR_AGG:
         case BIT_XNOR_AGG:
@@ -1026,6 +1029,7 @@ public class Aggregate extends AbstractAggregate implements ExpressionWithFlags 
             break;
         case MIN:
         case MAX:
+        case RANGE:
         case ANY_VALUE:
             break;
         case STDDEV_POP:
