@@ -65,30 +65,30 @@ final class AggregateDataRange extends AggregateData {
     }
 
     private Value getDateTimeRange(SessionLocal session, IntervalQualifier qualifier) {
-        BigInteger diff = nanosFromValue(session, max).subtract(nanosFromValue(session, min)).add(BigInteger.valueOf(timeZoneOffsetAdjustment()));
-        return IntervalUtils.intervalFromAbsolute(qualifier, diff);
-    }
+        long[] maxArr = DateTimeUtils.dateAndTimeFromValue(max, session);
+        long[] minArr = DateTimeUtils.dateAndTimeFromValue(min, session);
 
-    private long timeZoneOffsetAdjustment() {
+        BigInteger maxNanos = BigInteger.valueOf(DateTimeUtils.absoluteDayFromDateValue(maxArr[0])).multiply(IntervalUtils.NANOS_PER_DAY_BI).add(BigInteger.valueOf(maxArr[1]));
+        BigInteger minNanos = BigInteger.valueOf(DateTimeUtils.absoluteDayFromDateValue(minArr[0])).multiply(IntervalUtils.NANOS_PER_DAY_BI).add(BigInteger.valueOf(minArr[1]));
+
+        long offset = 0;
         switch (min.getValueType()) {
-        case Value.TIME_TZ: {
-            ValueTimeTimeZone lo = (ValueTimeTimeZone) min;
-            ValueTimeTimeZone hi = (ValueTimeTimeZone) max;
-            return (lo.getTimeZoneOffsetSeconds() - hi.getTimeZoneOffsetSeconds()) * DateTimeUtils.NANOS_PER_SECOND;
+            case Value.TIME_TZ: {
+                ValueTimeTimeZone lo = (ValueTimeTimeZone) min;
+                ValueTimeTimeZone hi = (ValueTimeTimeZone) max;
+                offset = (lo.getTimeZoneOffsetSeconds() - hi.getTimeZoneOffsetSeconds()) * DateTimeUtils.NANOS_PER_SECOND;
+                break;
+            }
+            case Value.TIMESTAMP_TZ: {
+                ValueTimestampTimeZone lo = (ValueTimestampTimeZone) min;
+                ValueTimestampTimeZone hi = (ValueTimestampTimeZone) max;
+                offset = (lo.getTimeZoneOffsetSeconds() - hi.getTimeZoneOffsetSeconds()) * DateTimeUtils.NANOS_PER_SECOND;
+                break;
+            }
         }
-        case Value.TIMESTAMP_TZ: {
-            ValueTimestampTimeZone lo = (ValueTimestampTimeZone) min;
-            ValueTimestampTimeZone hi = (ValueTimestampTimeZone) max;
-            return (lo.getTimeZoneOffsetSeconds() - hi.getTimeZoneOffsetSeconds()) * DateTimeUtils.NANOS_PER_SECOND;
-        }
-        default:
-            return 0L;
-        }
-    }
 
-    private static BigInteger nanosFromValue(SessionLocal session, Value v) {
-        long[] a = DateTimeUtils.dateAndTimeFromValue(v, session);
-        return BigInteger.valueOf(DateTimeUtils.absoluteDayFromDateValue(a[0])).multiply(IntervalUtils.NANOS_PER_DAY_BI).add(BigInteger.valueOf(a[1]));
+        BigInteger diff = maxNanos.subtract(minNanos).add(BigInteger.valueOf(offset));
+        return IntervalUtils.intervalFromAbsolute(qualifier, diff);
     }
 
 }
