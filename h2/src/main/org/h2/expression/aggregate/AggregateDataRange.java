@@ -12,10 +12,7 @@ import org.h2.engine.SessionLocal;
 import org.h2.util.DateTimeUtils;
 import org.h2.util.IntervalUtils;
 import org.h2.value.Value;
-import org.h2.value.ValueDate;
-import org.h2.value.ValueInterval;
 import org.h2.value.ValueNull;
-import org.h2.value.ValueTime;
 import org.h2.value.ValueTimeTimeZone;
 import org.h2.value.ValueTimestampTimeZone;
 
@@ -56,58 +53,42 @@ final class AggregateDataRange extends AggregateData {
         switch (min.getValueType()) {
         case Value.TIME:
         case Value.TIME_TZ:
-            return getTimeRange();
+            return getDateTimeRange(session, IntervalQualifier.HOUR_TO_SECOND);
         case Value.DATE:
-            return getDateRange();
+            return getDateTimeRange(session, IntervalQualifier.DAY);
         case Value.TIMESTAMP:
         case Value.TIMESTAMP_TZ:
-            return getTimestampRange(session);
+            return getDateTimeRange(session, IntervalQualifier.DAY_TO_SECOND);
         default:
             return max.subtract(min);
         }
     }
 
-    private Value getTimeRange() {
-        long diff;
-        if (min.getValueType() == Value.TIME) {
-            diff = ((ValueTime) max).getNanos() - ((ValueTime) min).getNanos();
-        } else {
-            ValueTimeTimeZone lo = (ValueTimeTimeZone) min, hi = (ValueTimeTimeZone) max;
-            diff = hi.getNanos() - lo.getNanos() + (lo.getTimeZoneOffsetSeconds() - hi.getTimeZoneOffsetSeconds())
-                    * DateTimeUtils.NANOS_PER_SECOND;
-        }
-        boolean negative = diff < 0;
-        if (negative) {
-            diff = -diff;
-        }
-        return ValueInterval.from(IntervalQualifier.HOUR_TO_SECOND, negative, diff / DateTimeUtils.NANOS_PER_HOUR,
-                diff % DateTimeUtils.NANOS_PER_HOUR);
+    private Value getDateTimeRange(SessionLocal session, IntervalQualifier qualifier) {
+        BigInteger diff = nanosFromValue(session, max).subtract(nanosFromValue(session, min)).add(BigInteger.valueOf(timeZoneOffsetAdjustment()));
+        return IntervalUtils.intervalFromAbsolute(qualifier, diff);
     }
 
-    private Value getDateRange() {
-        long diff = DateTimeUtils.absoluteDayFromDateValue(((ValueDate) max).getDateValue())
-                - DateTimeUtils.absoluteDayFromDateValue(((ValueDate) min).getDateValue());
-        boolean negative = diff < 0;
-        if (negative) {
-            diff = -diff;
+    private long timeZoneOffsetAdjustment() {
+        switch (min.getValueType()) {
+        case Value.TIME_TZ: {
+            ValueTimeTimeZone lo = (ValueTimeTimeZone) min;
+            ValueTimeTimeZone hi = (ValueTimeTimeZone) max;
+            return (lo.getTimeZoneOffsetSeconds() - hi.getTimeZoneOffsetSeconds()) * DateTimeUtils.NANOS_PER_SECOND;
         }
-        return ValueInterval.from(IntervalQualifier.DAY, negative, diff, 0L);
-    }
-
-    private Value getTimestampRange(SessionLocal session) {
-        BigInteger diff = nanosFromValue(session, max).subtract(nanosFromValue(session, min));
-        if (min.getValueType() == Value.TIMESTAMP_TZ) {
-            ValueTimestampTimeZone lo = (ValueTimestampTimeZone) min, hi = (ValueTimestampTimeZone) max;
-            diff = diff.add(BigInteger.valueOf((lo.getTimeZoneOffsetSeconds() - hi.getTimeZoneOffsetSeconds())
-                    * DateTimeUtils.NANOS_PER_SECOND));
+        case Value.TIMESTAMP_TZ: {
+            ValueTimestampTimeZone lo = (ValueTimestampTimeZone) min;
+            ValueTimestampTimeZone hi = (ValueTimestampTimeZone) max;
+            return (lo.getTimeZoneOffsetSeconds() - hi.getTimeZoneOffsetSeconds()) * DateTimeUtils.NANOS_PER_SECOND;
         }
-        return IntervalUtils.intervalFromAbsolute(IntervalQualifier.DAY_TO_SECOND, diff);
+        default:
+            return 0L;
+        }
     }
 
     private static BigInteger nanosFromValue(SessionLocal session, Value v) {
         long[] a = DateTimeUtils.dateAndTimeFromValue(v, session);
-        return BigInteger.valueOf(DateTimeUtils.absoluteDayFromDateValue(a[0]))
-                .multiply(IntervalUtils.NANOS_PER_DAY_BI).add(BigInteger.valueOf(a[1]));
+        return BigInteger.valueOf(DateTimeUtils.absoluteDayFromDateValue(a[0])).multiply(IntervalUtils.NANOS_PER_DAY_BI).add(BigInteger.valueOf(a[1]));
     }
 
 }
