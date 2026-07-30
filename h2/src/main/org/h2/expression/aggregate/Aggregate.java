@@ -1029,8 +1029,10 @@ public class Aggregate extends AbstractAggregate implements ExpressionWithFlags 
             break;
         case MIN:
         case MAX:
-        case RANGE:
         case ANY_VALUE:
+            break;
+        case RANGE:
+            type = getRangeType(type);
             break;
         case STDDEV_POP:
         case STDDEV_SAMP:
@@ -1152,6 +1154,21 @@ public class Aggregate extends AbstractAggregate implements ExpressionWithFlags 
                 return TypeInfo.getTypeInfo(valueType, ValueInterval.MAXIMUM_PRECISION, type.getDeclaredScale(), null);
             }
             return null;
+        }
+    }
+
+    private static TypeInfo getRangeType(TypeInfo type) {
+        switch (type.getValueType()) {
+        case Value.TIME:
+        case Value.TIME_TZ:
+            return TypeInfo.TYPE_INTERVAL_HOUR_TO_SECOND;
+        case Value.DATE:
+            return TypeInfo.TYPE_INTERVAL_DAY;
+        case Value.TIMESTAMP:
+        case Value.TIMESTAMP_TZ:
+            return TypeInfo.TYPE_INTERVAL_DAY_TO_SECOND;
+        default:
+            return type;
         }
     }
 
