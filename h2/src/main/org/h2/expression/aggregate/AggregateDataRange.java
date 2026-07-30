@@ -51,16 +51,16 @@ final class AggregateDataRange extends AggregateData {
             return ValueNull.INSTANCE;
         }
         switch (min.getValueType()) {
-        case Value.TIME:
-        case Value.TIME_TZ:
-            return getDateTimeRange(session, IntervalQualifier.HOUR_TO_SECOND);
-        case Value.DATE:
-            return getDateTimeRange(session, IntervalQualifier.DAY);
-        case Value.TIMESTAMP:
-        case Value.TIMESTAMP_TZ:
-            return getDateTimeRange(session, IntervalQualifier.DAY_TO_SECOND);
-        default:
-            return max.subtract(min);
+            case Value.TIME:
+            case Value.TIME_TZ:
+                return getDateTimeRange(session, IntervalQualifier.HOUR_TO_SECOND);
+            case Value.DATE:
+                return getDateTimeRange(session, IntervalQualifier.DAY);
+            case Value.TIMESTAMP:
+            case Value.TIMESTAMP_TZ:
+                return getDateTimeRange(session, IntervalQualifier.DAY_TO_SECOND);
+            default:
+                return max.subtract(min);
         }
     }
 
